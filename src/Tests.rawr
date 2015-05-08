@@ -1,40 +1,44 @@
-namespace Data
-  with ~Closure
-  with ~Countable
-  with ~Exception
-  with ~ReflectionClass
+module Data:
+  with .Closure
+  with .Countable
+  with .Exception
+  with .ReflectionClass
   import Data.Types
 
-  defun map (fn :: Closure, xs :: array)
+  define allowAccess
+    return True
+  end
+
+  define map (fn :: Closure, xs :: array)
     let arr = []
     iterate xs as item
-      arr[] = fn item
+      arr[] = ~fn item
     end
     return arr
   end
 
-  defun each (fn :: Closure, xs :: array)
+  define each (fn :: Closure, xs :: array)
     iterate xs as item
-      fn item
+      ~fn item
     return xs
   end
 
-  defun filter (fn :: Closure, xs :: array)
+  define filter (fn :: Closure, xs :: array)
     let arr = []
-    iterate list as item
-      arr[] = item if fn item
+    iterate xs as item
+      arr[] = item if ~fn item
     end
   end
 
-  class ClassHolder
+  blueprint ClassHolder
     with contract Countable
 
     my publicMethods = 0
     my methods       = null
 
     method constructor (className)
-      if class_exists className
-        let reflectionClass = new ReflectionClass className
+      if ~class_exists className
+        let reflectionClass = +ReflectionClass className
       otherwise
         raise +Exception "Class '${className}' not found."
       end
@@ -52,20 +56,20 @@ namespace Data
     static method parseDocComments (doc)
       let [doc, res] = [doc / "\n" ; []]
       iterate doc as line
-        let line = trim line
+        let line = ~trim line
 
         if line like "/**" or line like "*/"
-          continue
+          loop
         end
 
         if line.0 like "*"
           let simpleData = "/\*\s*@([a-z\|]+)\s*:\s*(.*)/"
           let out
-          let matching = preg_match simpleData, line, out
+          let matching = ~preg_match simpleData, line, out
           if matching
             res[] = [out.1 ; out.2]
           end
-          continue
+          loop
         end
         raise +Exception "Expecting '*' as the first character of line."
       end
@@ -73,14 +77,14 @@ namespace Data
     end
   end
 
-  record Name { name, $class, type, about }
+  record Name { name, class, type, about }
 
   let methodList = []
 
-  data["num"] = +ClassHolder "\\Data\\Num"
+  data !! "num" = +ClassHolder "\\Data\\Num"
 
-  data["num"].listPublicMethods!
-  >> filter (ReflectionMethod method) -> return method.getDocComment!
-  >> each (item) -> var_dump ClassHolder::parseDocComments item.getDocComment!
+  (data !! "num").listPublicMethods!
+  >> filter (m :: ReflectionFunction) -> return m.getDocComment!
+  >> each (item) -> var_dump ~ClassHolder::parseDocComments item.getDocComment!
 
 end
