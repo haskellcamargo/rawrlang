@@ -117,6 +117,7 @@
     const T_TIMES         = 112;
     const T_EXP           = 113;
     const T_MOD           = 114;
+    const T_NEWLINE       = 115;
 
     public static $tokenNames = [
       "n/a", "EOF", "T_IDENT", "T_DEDENT", "T_ABSTRACT", "T_AND_EQUAL",
@@ -139,7 +140,8 @@
       "T_RAISE", "T_TRAIT", "T_TRY", "T_LET", "T_WHILE", "T_XOR_EQ", "T_YIELD",
       "T_PIPE", "T_CHAIN", "T_ARRAY_ACESS", "T_DOUBLE_COLON", "T_LPAREN",
       "T_RPAREN", "T_LBRACKET", "T_RBRACKET", "T_AT", "T_THEN", "T_THIS",
-      "T_END", "T_PLUS", "T_MINUS", "T_DIVISION", "T_TIMES", "T_EXP", "T_MOD"
+      "T_END", "T_PLUS", "T_MINUS", "T_DIVISION", "T_TIMES", "T_EXP", "T_MOD",
+      "T_NEWLINE"
     ];
 
 
@@ -158,18 +160,25 @@
       while ($this->char != self::EOF) {
         switch ($this->char) {
           // Return here.
+          case "\n":
+            $this->consume();
+            return new Token(self::T_NEWLINE, "");
+          case " ":
+            return $this->T_WHITESPACE();
+          case ":":
+            return $this->checkDoubleColon();
           default:
             if (Verifier::startIdentifier($this->char)) {
               return $this->checkIdentifier();
             }
-            echo "Ooops\n";
+            echo "Ooops. Unexpected '{$this->char}'\n";
             exit;
         }
       }
       return new Token(self::EOF_TYPE, "[EOF]");
     }
 
-    public function checkIdentifier()
+    private function checkIdentifier()
     {
       $buffer = $this->char;
       $this->consume();
@@ -179,11 +188,29 @@
       }
 
       switch ($buffer) {
+        case "namespace":
+          return new Token(self::T_NS, $buffer);
         default:
-          foreach (self::$tokenNames as $key => $value) {
-            echo "$key => $value\n";
-          }
           return new Token(self::T_IDENTIFIER, $buffer);
       }
+    }
+
+    private function T_WHITESPACE()
+    {
+      $this->consume();
+      while ($this->char == " ")
+        $this->consume();
+      return new Token(self::T_WHITESPACE, " ");
+    }
+
+    private function checkDoubleColon()
+    {
+      $this->consume();
+      if ($this->char == ":") {
+        return new Token(self::T_STATIC_ACCESS, "::");
+        $this->consume();
+      }
+      else
+        return new Token(self::T_DOUBLE_COLON, ":");
     }
   }
