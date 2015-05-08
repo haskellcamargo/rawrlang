@@ -53,62 +53,70 @@
     const T_INCLUDE       = 48;
     const T_INCLUDE_ONCE  = 49;
     const T_REQUIRE       = 50;
-    const T_REQUIRE_ONCE  = 60;
-    const T_INSTANCEOF    = 61;
-    const T_INSTEADOF     = 62;
-    const T_FUZZY_EQUAL   = 63;
-    const T_STRICT_EQUAL  = 64;
-    const T_GREATER_OR_EQ = 65;
-    const T_NOT           = 66;
-    const T_DIFFERENT     = 67;
-    const T_STRICT_DIFF   = 68;
-    const T_SMALLER_OR_EQ = 69;
-    const T_SMALLER       = 70;
-    const T_LIST          = 71;
-    const T_LOGICAL_AND   = 72;
-    const T_LOGICAL_OR    = 73;
-    const T_LOGICAL_XOR   = 74;
-    const T_METHOD        = 75;
-    const T_MINUS_EQ      = 76;
-    const T_MOD_EQ        = 77;
-    const T_ASSIGN        = 78;
-    const T_MUL_EQ        = 79;
-    const T_NS            = 80;
-    const T_NS_SEPARATOR  = 81;
-    const T_NEW           = 82;
-    const T_OBJECT_OP     = 83;
-    const T_OR_EQ         = 84;
-    const T_PLUS_EQ       = 85;
-    const T_POW           = 86;
-    const T_POW_EQ        = 86;
-    const T_MY            = 88;
-    const T_SHARED        = 89;
-    const T_PROTECTED     = 90;
-    const T_RETURN        = 91;
-    const T_SL            = 92;
-    const T_SL_EQ         = 93;
-    const T_SR            = 94;
-    const T_SR_EQ         = 95;
-    const T_STATIC        = 96;
-    const T_IDENTIFIER    = 97;
-    const T_SWITCH        = 98;
-    const T_RAISE         = 99;
-    const T_TRAIT         = 100;
-    const T_TRY           = 101;
-    const T_LET           = 102;
-    const T_WHILE         = 103;
-    const T_XOR_EQ        = 104;
-    const T_YIELD         = 105;
-    const T_PIPE          = 107;
-    const T_CHAIN         = 108;
-    const T_ARRAY_ACESS   = 109;
-    const T_DOUBLE_COLON  = 110;
-    const T_LPAREN        = 111;
-    const T_RPAREN        = 112;
-    const T_LBRACKET      = 113;
-    const T_RBRACKET      = 114;
-    const T_AT            = 115;
-    const T_THEN          = 116;
+    const T_REQUIRE_ONCE  = 51;
+    const T_INSTANCEOF    = 52;
+    const T_INSTEADOF     = 53;
+    const T_FUZZY_EQUAL   = 54;
+    const T_STRICT_EQUAL  = 55;
+    const T_GREATER_OR_EQ = 56;
+    const T_NOT           = 57;
+    const T_DIFFERENT     = 58;
+    const T_STRICT_DIFF   = 59;
+    const T_SMALLER_OR_EQ = 60;
+    const T_SMALLER       = 61;
+    const T_LIST          = 62;
+    const T_LOGICAL_AND   = 63;
+    const T_LOGICAL_OR    = 64;
+    const T_LOGICAL_XOR   = 65;
+    const T_METHOD        = 66;
+    const T_MINUS_EQ      = 67;
+    const T_MOD_EQ        = 68;
+    const T_ASSIGN        = 69;
+    const T_MUL_EQ        = 70;
+    const T_NS            = 71;
+    const T_NS_SEPARATOR  = 72;
+    const T_NEW           = 73;
+    const T_OBJECT_OP     = 74;
+    const T_OR_EQ         = 75;
+    const T_PLUS_EQ       = 76;
+    const T_POW           = 77;
+    const T_POW_EQ        = 78;
+    const T_MY            = 79;
+    const T_SHARED        = 80;
+    const T_PROTECTED     = 81;
+    const T_RETURN        = 82;
+    const T_SL            = 83;
+    const T_SL_EQ         = 84;
+    const T_SR            = 85;
+    const T_SR_EQ         = 86;
+    const T_STATIC        = 87;
+    const T_IDENTIFIER    = 88;
+    const T_SWITCH        = 89;
+    const T_RAISE         = 90;
+    const T_TRAIT         = 91;
+    const T_TRY           = 92;
+    const T_LET           = 93;
+    const T_WHILE         = 94;
+    const T_XOR_EQ        = 95;
+    const T_YIELD         = 96;
+    const T_PIPE          = 97;
+    const T_CHAIN         = 98;
+    const T_ARRAY_ACESS   = 99;
+    const T_DOUBLE_COLON  = 100;
+    const T_LPAREN        = 101;
+    const T_RPAREN        = 102;
+    const T_LBRACKET      = 103;
+    const T_RBRACKET      = 104;
+    const T_AT            = 105;
+    const T_THEN          = 106;
+    const T_THIS          = 107;
+    const T_END           = 108;
+    const T_PLUS          = 109;
+    const T_MINUS         = 110;
+    const T_DIVISION      = 111;
+    const T_TIMES         = 112;
+    const T_EXP           = 113;
+    const T_MOD           = 114;
 
     public static $tokenNames = [
       "n/a", "EOF", "T_IDENT", "T_DEDENT", "T_ABSTRACT", "T_AND_EQUAL",
@@ -130,7 +138,8 @@
       "T_SL_EQ", "T_SR", "T_SR_EQ", "T_STATIC", "T_IDENTIFIER", "T_SWITCH",
       "T_RAISE", "T_TRAIT", "T_TRY", "T_LET", "T_WHILE", "T_XOR_EQ", "T_YIELD",
       "T_PIPE", "T_CHAIN", "T_ARRAY_ACESS", "T_DOUBLE_COLON", "T_LPAREN",
-      "T_RPAREN", "T_LBRACKET", "T_RBRACKET", "T_AT", "T_THEN"
+      "T_RPAREN", "T_LBRACKET", "T_RBRACKET", "T_AT", "T_THEN", "T_THIS",
+      "T_END", "T_PLUS", "T_MINUS", "T_DIVISION", "T_TIMES", "T_EXP", "T_MOD"
     ];
 
 
@@ -151,11 +160,30 @@
           // Return here.
           default:
             if (Verifier::startIdentifier($this->char)) {
-              echo "FOO";
+              return $this->checkIdentifier();
             }
-            throw new Exception("Error");
+            echo "Ooops\n";
+            exit;
         }
       }
       return new Token(self::EOF_TYPE, "[EOF]");
+    }
+
+    public function checkIdentifier()
+    {
+      $buffer = $this->char;
+      $this->consume();
+      while (Verifier::startIdentifier($this->char)) {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+
+      switch ($buffer) {
+        default:
+          foreach (self::$tokenNames as $key => $value) {
+            echo "$key => $value\n";
+          }
+          return new Token(self::T_IDENTIFIER, $buffer);
+      }
     }
   }

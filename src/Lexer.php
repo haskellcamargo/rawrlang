@@ -19,7 +19,7 @@
       if ($this->position >= strlen($this->input)) {
         $this->char = Lexer::EOF;
       } else {
-        $this->char = $input[$this->position];
+        $this->char = $this->input[$this->position];
       }
     }
 
