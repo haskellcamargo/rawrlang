@@ -5,7 +5,7 @@ namespace Data
   with ~ReflectionClass
   import Data.Types
 
-  defun map = (fn :: Closure, xs :: array)
+  defun map (fn :: Closure, xs :: array)
     let arr = []
     iterate xs as item
       arr[] = fn item
@@ -46,7 +46,7 @@ namespace Data
 
     method listPublicMethods
       return @methods
-      |> filter (.isPublic!)
+      >> filter (.isPublic!)
     end
 
     static method parseDocComments (doc)
@@ -59,7 +59,7 @@ namespace Data
         end
 
         if line.0 like "*"
-          let simpleData = /\*\s*@([a-z\|]+)\s*:\s*(.*)/
+          let simpleData = "/\*\s*@([a-z\|]+)\s*:\s*(.*)/"
           let out
           let matching = preg_match simpleData, line, out
           if matching
@@ -80,7 +80,7 @@ namespace Data
   data["num"] = +ClassHolder "\\Data\\Num"
 
   data["num"].listPublicMethods!
-  |> filter (ReflectionMethod method) -> return method.getDocComment!
-  |> each (item) -> var_dump ClassHolder::parseDocComments item.getDocComment!
+  >> filter (ReflectionMethod method) -> return method.getDocComment!
+  >> each (item) -> var_dump ClassHolder::parseDocComments item.getDocComment!
 
 end

@@ -13,6 +13,11 @@
       $this->char = $input[$this->position];
     }
 
+    public function ahead($plus = 1)
+    {
+      return $this->input[$this->position + $plus];
+    }
+
     public function consume()
     {
       $this->position++;
@@ -20,6 +25,14 @@
         $this->char = Lexer::EOF;
       } else {
         $this->char = $this->input[$this->position];
+      }
+    }
+
+    public function optional($char, $token)
+    {
+      if ($this->char == $char) {
+        $this->consume();
+        return new Token($token, $char);
       }
     }
 

@@ -26,7 +26,7 @@
     const T_DECLARE       = 21;
     const T_OTHERWISE     = 22;
     const T_DIV_EQUAL     = 23;
-    const T_DOUBLE        = 24;
+    const T_NUMBER        = 24;
     const T_INTEGER       = 25;
     const T_DOCCOMMENT    = 26;
     const T_DO            = 27;
@@ -118,13 +118,25 @@
     const T_EXP           = 113;
     const T_MOD           = 114;
     const T_NEWLINE       = 115;
+    const T_TILDE         = 116;
+    const T_COMMA         = 117;
+    const T_DOT           = 118;
+    const T_SEMICOLON     = 119;
+    const T_GREATER       = 120;
+    const T_LESSER        = 121;
+    const T_LEXER_OR_EQ   = 122;
+    const T_CALL          = 123;
+    const T_EXPLODE       = 124;
+    const T_LBRACE        = 125;
+    const T_RBRACE        = 126;
+    const T_CYPHER        = 127;
 
     public static $tokenNames = [
       "n/a", "EOF", "T_IDENT", "T_DEDENT", "T_ABSTRACT", "T_AND_EQUAL",
       "T_CAST", "T_AS", "T_BAD_CHARACTER", "T_BOOLEAN_AND", "T_BOOLEAN_OR",
       "T_BREAK", "T_WHEN", "T_CATCH", "T_CLASS", "T_CLONE", "T_COMMENT",
       "T_CONCAT_EQUAL", "T_CONST", "T_STRING", "T_CONTINUE", "T_DECLARE",
-      "T_OTHERWISE", "T_DIV_EQUAL", "T_DOUBLE", "T_INTEGER", "T_DOCCOMMENT",
+      "T_OTHERWISE", "T_DIV_EQUAL", "T_NUMBER", "T_INTEGER", "T_DOCCOMMENT",
       "T_DO", "T_DOUBLE_ARROW", "T_STATIC_ACCESS", "T_ELLIPSIS", "T_ELSE",
       "T_ELIF", "T_WHITESPACE", "T_EXIT", "T_INHERIT", "T_FINAL", "T_FINALLY",
       "T_FOR", "T_FROM", "T_ITERATE", "T_LAMBDA", "T_DEFUN", "T_GLOBAL",
@@ -141,7 +153,9 @@
       "T_PIPE", "T_CHAIN", "T_ARRAY_ACESS", "T_DOUBLE_COLON", "T_LPAREN",
       "T_RPAREN", "T_LBRACKET", "T_RBRACKET", "T_AT", "T_THEN", "T_THIS",
       "T_END", "T_PLUS", "T_MINUS", "T_DIVISION", "T_TIMES", "T_EXP", "T_MOD",
-      "T_NEWLINE"
+      "T_NEWLINE", "T_TILDE", "T_COMMA", "T_DOT", "T_SEMICOLON", "T_GREATER",
+      "T_LESSER", "T_LESSER_OR_EQ", "T_CALL", "T_EXPLODE", "T_LBRACE",
+      "T_RBRACE", "T_CYPHER"
     ];
 
 
@@ -163,13 +177,69 @@
           case "\n":
             $this->consume();
             return new Token(self::T_NEWLINE, "");
+          case ".":
+            $this->consume();
+            return new Token(self::T_DOT, ".");
+          case "(":
+            $this->consume();
+            return new Token(self::T_LPAREN, "(");
+          case ")":
+            $this->consume();
+            return new Token(self::T_RPAREN, ")");
+          case "[":
+            $this->consume();
+            return new Token(self::T_LBRACKET, "[");
+          case "]":
+            $this->consume();
+            return new Token(self::T_RBRACKET, "]");
+          case ",":
+            $this->consume();
+            return new Token(self::T_COMMA, ",");
+          case "@":
+            $this->consume();
+            return new Token(self::T_THIS, "@");
+          case ";":
+            $this->consume();
+            return new Token(self::T_SEMICOLON, ";");
+          case "{":
+            $this->consume();
+            return new Token(self::T_LBRACE, "{");
+          case "}":
+            $this->consume();
+            return new Token(self::T_RBRACE, "}");
+          case "|":
+            $this->consume();
+            return new Token(self::T_PIPE, "|");
+          case "$":
+            $this->consume();
+            return new Token(self::T_CYPHER, "$");
+          case ">":
+            return $this->checkGreaterOperator();
+          case "<":
+            return $this->checkLesserOperator();
+          case "~":
+            return $this->checkTilde();
+          case "+":
+            return $this->checkPlusOperator();
+          case "-":
+            return $this->checkMinusOperator();
           case " ":
             return $this->T_WHITESPACE();
           case ":":
             return $this->checkDoubleColon();
+          case "=":
+            return $this->checkEqualOperator();
+          case "\"":
+            return $this->checkString();
+          case "!":
+            return $this->checkExclamationOperator();
+          case "/":
+            return $this->checkSlashOperator();
           default:
             if (Verifier::startIdentifier($this->char)) {
               return $this->checkIdentifier();
+            } else if (Verifier::startNumber($this->char)) {
+              return $this->checkNumber();
             }
             echo "Ooops. Unexpected '{$this->char}'\n";
             exit;
@@ -212,7 +282,133 @@
         return new Token(self::T_STATIC_ACCESS, "::");
         $this->consume();
       }
-      else
-        return new Token(self::T_DOUBLE_COLON, ":");
+      return new Token(self::T_DOUBLE_COLON, ":");
+    }
+
+    private function checkEqualOperator()
+    {
+      $this->consume();
+      if ($this->char == "=") {
+        $this->consume();
+        return new Token(self::T_STRICT_EQUAL, "==");
+      }
+      return new Token(self::T_ASSIGN, "=");
+    }
+
+    private function checkTilde()
+    {
+      $this->consume();
+      if ($this->char == "=") {
+        $this->consume();
+        return new Token(self::T_FUZZY_EQUAL, "~=");
+      }
+      return new Token(self::T_TILDE, "~");
+    }
+
+    private function checkNumber()
+    {
+      $buffer = $this->char;
+      $this->consume();
+
+      while (ctype_digit($this->char)) {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+
+      if ($this->char == ".") {
+        if (ctype_digit($this->ahead())) {
+          $buffer .= ".";
+          $this->consume();
+          while (ctype_digit($this->char)) {
+            $buffer .= $this->char;
+            $this->consume();
+          }
+        }
+      }
+
+      return new Token(self::T_NUMBER, $buffer);
+    }
+
+    private function checkPlusOperator()
+    {
+      $this->consume();
+      if ($this->char == "=") {
+        $this->consume();
+        return new Token(self::T_PLUS_EQ, "+=");
+      }
+      return new Token(self::T_PLUS, "+");
+    }
+
+    private function checkMinusOperator()
+    {
+      $this->consume();
+      if ($this->char == "=") {
+        $this->consume();
+        return new Token(self::T_MINUS_EQ, "-=");
+      }
+      return new Token(self::T_MINUS, "-");
+    }
+
+    private function checkString()
+    {
+      $this->consume();
+      $buffer = "";
+      while ($this->char != "\"") {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+      $this->consume();
+      return new Token(self::T_STRING, $buffer);
+    }
+
+    private function checkGreaterOperator()
+    {
+      $this->consume();
+      switch ($this->char) {
+        case ">":
+          $this->consume();
+          return new Token(self::T_CHAIN, ">>");
+        case "=":
+          $this->consume();
+          return new Token(self::T_GREATER_OR_EQ, ">=");
+        default:
+          return new Token(self::T_GREATER, ">");
+      }
+    }
+
+    private function checkLesserOperator()
+    {
+      $this->consume();
+      switch ($this->char) {
+        case "=":
+          $this->consume;
+          return new Token(self::T_LESSER_OR_EQ, "<=");
+        default:
+          return new Token(self::T_LESSER, "<");
+      }
+    }
+
+    private function checkExclamationOperator()
+    {
+      $this->consume();
+      switch ($this->char) {
+        case "!":
+          $this->consume();
+          return new Token(self::T_ARRAY_ACESS, "!!");
+        default:
+          return new Token(self::T_CALL, "!");
+      }
+    }
+
+    private function checkSlashOperator()
+    {
+      $this->consume();
+
+      if ($this->char == " ")
+        $this->optional(" ", self::T_WHITESPACE);
+
+      return new Token(($this->char == "\"" ? self::T_EXPLODE
+                                            : self::T_DIVISION
+                       ), "/");
     }
   }
