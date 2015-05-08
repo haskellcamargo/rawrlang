@@ -2,7 +2,7 @@
   require_once "Tokenizer.php";
   require_once "Token.php";
 
-  $lexer = new Tokenizer($argv[1]);
+  $lexer = new Tokenizer(file_get_contents($argv[1]));
   $token = $lexer->nextToken();
 
   while ($token->type != 1) {

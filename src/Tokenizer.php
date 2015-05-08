@@ -1,10 +1,11 @@
 <?php
   require_once "Lexer.php";
+  require_once "Verifier.php";
 
   class Tokenizer extends Lexer
   {
     const T_IDENT         = 2;
-    const T_DEDENT        = 3
+    const T_DEDENT        = 3;
     const T_ABSTRACT      = 4;
     const T_AND_EQUAL     = 5;
     const T_CAST          = 6;
@@ -107,11 +108,30 @@
     const T_LBRACKET      = 113;
     const T_RBRACKET      = 114;
     const T_AT            = 115;
+    const T_THEN          = 116;
 
-    switch
-      when age then true 
-
-
+    public static $tokenNames = [
+      "n/a", "EOF", "T_IDENT", "T_DEDENT", "T_ABSTRACT", "T_AND_EQUAL",
+      "T_CAST", "T_AS", "T_BAD_CHARACTER", "T_BOOLEAN_AND", "T_BOOLEAN_OR",
+      "T_BREAK", "T_WHEN", "T_CATCH", "T_CLASS", "T_CLONE", "T_COMMENT",
+      "T_CONCAT_EQUAL", "T_CONST", "T_STRING", "T_CONTINUE", "T_DECLARE",
+      "T_OTHERWISE", "T_DIV_EQUAL", "T_DOUBLE", "T_INTEGER", "T_DOCCOMMENT",
+      "T_DO", "T_DOUBLE_ARROW", "T_STATIC_ACCESS", "T_ELLIPSIS", "T_ELSE",
+      "T_ELIF", "T_WHITESPACE", "T_EXIT", "T_INHERIT", "T_FINAL", "T_FINALLY",
+      "T_FOR", "T_FROM", "T_ITERATE", "T_LAMBDA", "T_DEFUN", "T_GLOBAL",
+      "T_GOTO", "T_IF", "T_CONTRACT", "T_WITH", "T_INCLUDE", "T_INCLUDE_ONCE",
+      "T_REQUIRE", "T_REQUIRE_ONCE", "T_INSTANCEOF", "T_INSTEADOF",
+      "T_FUZZY_EQUAL", "T_STRICT_EQUAL", "T_GREATER_OR_EQ", "T_NOT",
+      "T_DIFFERENT", "T_STRICT_DIFF", "T_SMALLER_OR_EQ", "T_SMALLER", "T_LIST",
+      "T_LOGICAL_AND", "T_LOGICAL_OR", "T_LOGICAL_XOR", "T_METHOD",
+      "T_MINUS_EQ", "T_MOD_EQ", "T_ASSIGN", "T_MUL_EQ", "T_NS",
+      "T_NS_SEPARATOR", "T_NEW", "T_OBJECT_OP", "T_OR_EQ", "T_PLUS_EQ", "T_POW",
+      "T_POW_EQ", "T_MY", "T_SHARED", "T_PROTECTED", "T_RETURN", "T_SL",
+      "T_SL_EQ", "T_SR", "T_SR_EQ", "T_STATIC", "T_IDENTIFIER", "T_SWITCH",
+      "T_RAISE", "T_TRAIT", "T_TRY", "T_LET", "T_WHILE", "T_XOR_EQ", "T_YIELD",
+      "T_PIPE", "T_CHAIN", "T_ARRAY_ACESS", "T_DOUBLE_COLON", "T_LPAREN",
+      "T_RPAREN", "T_LBRACKET", "T_RBRACKET", "T_AT", "T_THEN"
+    ];
 
 
     public function __construct($input)
@@ -130,6 +150,9 @@
         switch ($this->char) {
           // Return here.
           default:
+            if (Verifier::startIdentifier($this->char)) {
+              echo "FOO";
+            }
             throw new Exception("Error");
         }
       }
