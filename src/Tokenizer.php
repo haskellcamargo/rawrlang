@@ -190,6 +190,8 @@
       switch ($buffer) {
         case "namespace":
           return new Token(self::T_NS, $buffer);
+        case "switch":
+          return new Token(self::T_SWITCH, $buffer);
         default:
           return new Token(self::T_IDENTIFIER, $buffer);
       }
