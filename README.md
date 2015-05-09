@@ -13,5 +13,21 @@ module Main
 end
 ```
 
+## Map Implementation
+
+```erlang
+module Implementation
+  exposing map
+  import {tail, head} from Prelude
+  
+  define map (fn :: Fun, list :: array)
+    let [x, xs] = [~head list, ~tail list]
+    switch xs
+    | []        = []
+    | otherwise = (~fn x) ++ (~map fn, list)
+  end
+end
+```
+
 # Operators
 
