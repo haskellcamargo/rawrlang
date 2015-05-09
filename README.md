@@ -22,7 +22,7 @@ module Implementation
   
   define map (fn :: Fun, list :: array)
     let [x, xs] = [~head list, ~tail list]
-    switch xs
+    return switch xs
     | []        = []
     | otherwise = (~fn x) ++ (~map fn, list)
   end
