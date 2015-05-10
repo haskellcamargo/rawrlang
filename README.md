@@ -61,8 +61,8 @@ blueprint Animal
   
   (@name) -> name
 
-  method walk (step :: int)
-    @step += int
+  method walk (_ :: int)
+    @step += ...
   end
 end
 
