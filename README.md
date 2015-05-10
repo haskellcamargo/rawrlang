@@ -51,7 +51,7 @@ end
 
 ```erlang
 contract AnimalContract
-  should walk (step :: int);
+  should walk (step :: int)
 end
 
 blueprint Animal
