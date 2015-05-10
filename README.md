@@ -49,3 +49,17 @@ end
 
 # Operators
 
+| Operator       | Associativity    | Description                         |
+| -------------- | ---------------- | ----------------------------------- |
+| `+`            | Left             | Sum                                 |
+| `-`            | Left             | Subtraction                         |
+| `++`           | Left             | String concatenation                |
+| `*`            | Left             | Multiplication / string replication |
+| `**`           | Left             | Exponential                         |
+| `/`            | Left             | Division / string replacement       |
+| `+=`           | Right            | Sum with assignment                 |
+| `-=`           | Right            | Subtraction with assignment         |
+| `*=`           | Right            | Multiplication with assignment      |
+| `/=`           | Right            | Division with assignment            |
+| `**=`          | Right            | Exponential with assignment         |
+| `**=`          |
