@@ -7,12 +7,12 @@
     const T_IDENT         = 2; # REMOVE
     const T_DEDENT        = 3; # REMOVE
     const T_ABSTRACT      = 4; # DONE
-    const T_AND_EQUAL     = 5;
+    const T_AND_EQUAL     = 5; # REMOVE
     const T_CAST          = 6;
     const T_AS            = 7; # DONE
     const T_BAD_CHARACTER = 8;
-    const T_BOOLEAN_AND   = 9;
-    const T_BOOLEAN_OR    = 10;
+    const T_BOOLEAN_AND   = 9;  # REMOVE
+    const T_BOOLEAN_OR    = 10; # REMOVE
     const T_STOP          = 11; # DONE
     const T_WHEN          = 12; # DONE
     const T_RESCUE        = 13; # DONE
@@ -36,8 +36,8 @@
     const T_ELSE          = 31; # DONE
     const T_ELIF          = 32; # DONE
     const T_WHITESPACE    = 33;
-    const T_EXIT          = 34;
-    const T_INHERIT       = 35;
+    const T_EXIT          = 34; # DONE
+    const T_INHERIT       = 35; # DONE
     const T_FINAL         = 36; # DONE
     const T_FINALLY       = 37; # DONE
     const T_FOR           = 38; # DONE
@@ -162,6 +162,8 @@
     const T_CURRY         = 157;
     const T_ISSET         = 158;
     const T_NULLCOALESCE  = 159;
+    const T_EXPOSING      = 160; # DONE
+    const T_IMPORT        = 161; # DONE
 
     public static $keyword = [
       "module"      => self::T_MODULE,
@@ -219,14 +221,10 @@
       "const"       => self::T_CONST,
       "based"       => self::T_BASED,
       "not"         => self::T_NOT,
-      "declare"     => self::T_DECLARE
-    ];
-
-    public static $composedKeyword = [
-      "is not"       => self::T_STRICT_DIFF,
-      "like not"     => self::T_DIFFERENT,
-      "require once" => self::T_REQUIRE_ONCE,
-      "include once" => self::T_INCLUDE_ONCE
+      "declare"     => self::T_DECLARE,
+      "exposing"    => self::T_EXPOSING,
+      "import"      => self::T_IMPORT,
+      "from"        => self::T_FROM
     ];
 
     public static $hygienize = [
@@ -263,7 +261,8 @@
       "T_BITWISE_XOR", "T_BITWISE_NOT", "T_LEFT_SHIFT", "T_RIGHT_SHIFT",
       "T_ZRIGHT_SHIFT", "T_MAXIMUM", "T_MINIMUM", "T_CONCAT", "T_LSTRINGLIST",
       "T_RSTRINGLIST", "T_MAP", "T_LCHAIN", "T_APPEND", "T_PREPEND",
-      "T_COMPOSE", "T_CURRY", "T_ISSET", "T_NULLCOALESCE"
+      "T_COMPOSE", "T_CURRY", "T_ISSET", "T_NULLCOALESCE", "T_EXPOSING",
+      "T_IMPORT"
     ];
 
     public function __construct($input)
@@ -419,7 +418,13 @@
         $this->consume();
         return new Token(self::T_FUZZY_EQUAL, "~=");
       }
-      return new Token(self::T_TILDE, "~");
+
+      $buffer = "";
+      while (ctype_alpha($this->char) || $this->char == "|") {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+      return new Token(self::T_CALL, "~{$buffer}");
     }
 
     private function checkNumber()
