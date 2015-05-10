@@ -50,7 +50,7 @@ end
 # Operators
 
 | Operator       | Associativity    | Description                         |
-| -------------- | ---------------- | ----------------------------------- |
+| :------------: | ---------------- | ----------------------------------- |
 | `+`            | Left             | Sum                                 |
 | `-`            | Left             | Subtraction                         |
 | `++`           | Left             | String concatenation                |
@@ -62,4 +62,23 @@ end
 | `*=`           | Right            | Multiplication with assignment      |
 | `/=`           | Right            | Division with assignment            |
 | `**=`          | Right            | Exponential with assignment         |
-| `**=`          |
+| `.&.`          | Left             | Bitwise `and`                       |
+| `.|.`          | Left             | Bitwise `or`                        |
+| `.&.`          | Left             | Bitwise `and`                       |
+| `.^.`          | Left             | Bitwise `xor`                       |
+| `.~.`          | Left             | Bitwise `not`                       |
+| `.<<.`         | Left             | Left shift                          |
+| `.>>.`         | Left             | Right shift                         |
+| `.>>>.`        | Left             | Zero right shift                    |
+| `and`          | Left             | Boolean `and`                       |
+| `or`           | Left             | Boolean `or`                        |
+| `xor`          | Left             | Boolean `xor`                       |
+| `instanceof`   | Left             | Instance of                         |
+| `<`            | No               | Lesser than                         |
+| `<=`           | No               | Lesser or equals to                 |
+| `<>`           | No               | Difference                          |
+| `<?`           | No               | Minimum value                       |
+| `<[]>`         | No               | String list                         |
+| `[]`           | Left             | Array                               |
+
+`TODO: List all the 100+ operators`.
