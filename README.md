@@ -29,5 +29,23 @@ module Implementation
 end
 ```
 
+
+## Console I/O
+
+```erlang
+module Main
+  ~IO::getLine! >>= *IO::putStrLn 
+end
+```
+## Write in File
+
+```erlang
+module TestFile
+  with filepath as ~IO::getLine! do
+    filepath.toFile! >> open "r" >> puts ~IO::getLine!
+  end
+end
+```
+
 # Operators
 
