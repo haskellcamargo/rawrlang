@@ -47,6 +47,39 @@ module TestFile
 end
 ```
 
+## Inheritance and Contracts
+
+```erlang
+contract AnimalContract
+  should walk (step :: int)
+end
+
+blueprint Animal
+  with contract AnimalContract
+  
+  protected member step, name
+  
+  (@name) -> name
+
+  method walk (_ :: int)
+    @step += ...
+  end
+end
+
+blueprint Cat
+  inherit Animal
+  
+  (@name) ->
+    ~parent::__construct @name
+  end
+  
+  method DominateTheWorld
+    % World has already been dominated by them.
+    return True
+  end
+end
+```
+
 # Operators
 
 | Operator       | Associativity    | Description                         |
