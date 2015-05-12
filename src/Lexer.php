@@ -1,41 +1,334 @@
 <?php
-  abstract class Lexer
-  {
-    const EOF      = -1;
-    const EOF_TYPE =  1;
-    protected $input;
-    protected $position = 0;
-    protected $char;
+  # Copyright (c) 2014 Marcelo Camargo <marcelocamargo@linuxmail.org>
+  #
+  # Permission is hereby granted, free of charge, to any person
+  # obtaining a copy of this software and associated documentation files
+  # (the "Software"), to deal in the Software without restriction,
+  # including without limitation the rights to use, copy, modify, merge,
+  # publish, distribute, sublicense, and/or sell copies of the Software,
+  # and to permit persons to whom the Software is furnished to do so,
+  # subject to the following conditions:
+  #
+  # The above copyright notice and this permission notice shall be
+  # included in all copies or substantial of portions the Software.
+  #
+  # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  namespace RawrLang\Lexer;
+  use \Exception;
 
+  class Lexer extends LexerBase
+  {
     public function __construct($input)
     {
-      $this->input = $input;
-      $this->char = $input[$this->position];
+      parent::__construct($input);
     }
 
-    public function ahead($plus = 1)
+    public function nextToken()
     {
-      return $this->input[$this->position + $plus];
-    }
+      while ($this->char != self::EOF) {
+        switch ($this->char) {
+          case " ":
+            $this->consume();
+            continue;
+          case "(":
+            return $this->checkLeftParen();
+          case ")":
+            return $this->checkRightParen();
+          case ",":
+            return $this->checkComma();
+          case "-":
+            return $this->checkMinus();
+          case "+":
+            return $this->checkPlus();
+          case "=":
+            return $this->checkEqual();
+          case "@":
+            return $this->checkAt();
+          case "~":
+            return $this->checkTilde();
+          case "\"":
+            return $this->checkDoubleQuote();
+          case ":":
+            return $this->checkDoubleColon();
+          case "\n":
+          case "\r":
+          case "\r\n":
+            return $this->checkNewLine();
+          case "%":
+            return $this->checkLineComment();
+          case ".":
+            return $this->checkDot();
+          default:
+            if (Verifier::isAlpha($this->char) || Verifier::isUnderscore($this->char)) {
+              return $this->checkWord();
+            }
 
-    public function consume()
-    {
-      $this->position++;
-      if ($this->position >= strlen($this->input)) {
-        $this->char = Lexer::EOF;
-      } else {
-        $this->char = $this->input[$this->position];
+            if (Verifier::isDigit($this->char)) {
+              return $this->checkDigit();
+            }
+
+            throw new Exception("Unexpected {$this->char}", 1);
+        }
       }
+      return new Token(self::T_EOF);
     }
 
-    public function optional($char, $token)
+    private function checkWord()
     {
-      if ($this->char == $char) {
+      $buffer = "";
+      while (Verifier::isAlpha($this->char) || Verifier::isDigit($this->char)
+          || Verifier::isUnderscore($this->char)) {
+        $buffer .= $this->char;
         $this->consume();
-        return new Token($token, $char);
+      }
+
+      if (array_key_exists($buffer, TerminalSymbol::$keywordTerminalFor)) {
+        return new Token(TerminalSymbol::$keywordTerminalFor[$buffer]);
+      }
+      return new Token(TerminalSymbol::T_IDENTIFIER, $buffer);
+    }
+
+    private function checkLineComment()
+    {
+      $buffer = "";
+      while ($this->char === "%") {
+        $this->consume();
+      }
+
+      while ($this->char !== "\n"
+         && $this->char !== "\r\n"
+         && $this->char !== "\r") {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+
+      $this->ignoreNewLine();
+      return new Token(TerminalSymbol::T_COMMENT, $buffer);
+    }
+
+    private function checkNewLine()
+    {
+      while (Verifier::isNewLine($this->char)) {
+        $this->consume();
+      }
+      return new Token(TerminalSymbol::T_NEWLINE);
+    }
+
+    private function ignoreNewLine()
+    {
+      while (Verifier::isNewLine($this->char)) {
+        $this->consume();
       }
     }
 
-    public abstract function nextToken();
-    public abstract function getTokenName($tokenType);
+    private function checkDot()
+    {
+      if ($this->maybe(".&.")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_BITWISE_AND);
+      }
+
+      if ($this->maybe(".|.")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_BITWISE_OR);
+      }
+
+      if ($this->maybe(".^.")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_BITWISE_XOR);
+      }
+
+      if ($this->maybe(".~.")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_BITWISE_NOT);
+      }
+
+      if ($this->maybe(".<<.")) {
+        $this->consume(4);
+        return new Token(TerminalSymbol::T_LEFT_SHIFT);
+      }
+
+      if ($this->maybe(".>>.")) {
+        $this->consume(4);
+        return new Token(TerminalSymbol::T_RIGHT_SHIFT);
+      }
+
+      if ($this->maybe(".>>>.")) {
+        $this->consume(5);
+        return new Token(TerminalSymbol::T_ZRIGHT_SHIFT);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_DOT);
+    }
+
+    private function checkLeftParen()
+    {
+      if ($this->maybe("(.")) {
+        $this->consume(2);
+        # TODO: APPLY PARTIAL FUNCTION.
+      } else {
+        $this->consume();
+        return new Token(TerminalSymbol::T_LPAREN);
+      }
+    }
+
+    private function checkRightParen()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_RPAREN);
+    }
+
+    private function checkComma()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_COMMA);
+    }
+
+    private function checkEqual()
+    {
+      if ($this->maybe("==")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_STRICT_EQUAL);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_ASSIGN);
+    }
+
+    private function checkDigit()
+    {
+      $buffer = "";
+      while (Verifier::isDigit($this->char)) {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+
+      if ($this->char === ".") {
+        if (Verifier::isDigit($this->ahead())) {
+          $buffer .= $this->char;
+          $this->consume();
+          while(Verifier::isDigit($this->char)) {
+            $buffer .= $this->char;
+            $this->consume();
+          }
+        } else {
+          $buffer .= "0";
+        }
+      }
+
+      return new Token(TerminalSymbol::T_NUMBER, $buffer);
+    }
+
+    private function checkMinus()
+    {
+      if ($this->maybe("-=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_MINUS_EQ);
+      }
+
+      if ($this->maybe("->")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_LAMBDA);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_MINUS);
+    }
+
+    private function checkAt()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_THIS);
+    }
+
+    private function checkDoubleQuote()
+    {
+      $this->consume();
+      $buffer = "";
+      while ($this->char !== "\"") {
+        $buffer .= $this->char;
+        $this->consume();
+      }
+      $this->consume();
+      return new Token(TerminalSymbol::T_STRING, $buffer);
+    }
+
+    private function checkPlus()
+    {
+      if ($this->maybe("+=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_PLUS_EQ);
+      }
+
+      if ($this->maybe("++=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_CONCAT_EQ);
+      }
+
+      if ($this->maybe("++")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_CONCAT);
+      }
+
+      if ($this->maybe("+++")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_CONCAT_ARRAY);
+      }
+
+      $this->consume();
+      if (Verifier::isAlpha($this->char)
+       || Verifier::isUnderscore($this->char)) {
+        return new Token(TerminalSymbol::T_NEW);
+      }
+      return new Token(TerminalSymbol::T_PLUS);
+    }
+
+    private function checkTilde()
+    {
+      if ($this->maybe("~=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_FUZZY_EQUAL);
+      }
+
+      $this->consume();
+
+      if (Verifier::isAlpha($this->char)) {
+        $buffer = $this->char;
+        $this->consume();
+        while (Verifier::isAlpha($this->char)
+            || Verifier::isDigit($this->char)
+            || Verifier::isUnderscore($this->char)) {
+          $buffer .= $this->char;
+          $this->consume();
+        }
+
+        return new Token(TerminalSymbol::T_CALL, $buffer);
+      }
+
+
+      return new Token(TerminalSymbol::T_TILDE);
+    }
+
+    private function checkDoubleColon()
+    {
+      if ($this->maybe("::")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_STATIC_ACCESS);
+      }
+
+      if ($this->maybe(":>")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_CURRY);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_DOUBLE_COLON);
+    }
   }

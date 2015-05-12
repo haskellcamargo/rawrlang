@@ -21,25 +21,44 @@
   # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   namespace RawrLang\Lexer;
 
-  class Token
+  abstract class LexerBase
   {
-    public $name;
-    public $value;
+    const EOF   =  -1    ;
+    const T_EOF = "T_EOF";
 
-    public function __construct($name, $value = 0)
+    protected $input;
+    protected $position = 0;
+    protected $char;
+
+    public function __construct($input)
     {
-      $this->name = $name;
-      $this->value = $value;
+      $this->input = $input;
+      $this->char = $input[$this->position];
     }
 
-    public function putStrLn()
+    public function ahead($plus = 1)
     {
-      if ($this->value !== 0) {
-        $token = TerminalSymbol::getTokenName($this->name);
-        echo "['{$this->value}', {$token}]";
-      } else {
-        echo "[{$this->name}]";
+      return $this->input[$this->position + $plus];
+    }
+
+    public function maybe($value)
+    {
+      for ($i = 0; $i < strlen($value); $i++) {
+        if ($this->ahead($i) !== $value[$i])
+          return false;
       }
-      echo "\n";
+      return true;
     }
+
+    public function consume($amount = 1)
+    {
+      $this->position += $amount;
+      if ($this->position >= strlen($this->input)) {
+        $this->char = self::EOF;
+      } else {
+        $this->char = $this->input[$this->position];
+      }
+    }
+
+    public abstract function nextToken();
   }
