@@ -39,15 +39,26 @@
     {
       switch ($this->lookahead->name) {
         case TerminalSymbol::T_COMMENT:
-          return $this->comment() . $this->stmt();
+          return $this->comment()
+          . $this->stmt();
         case TerminalSymbol::T_MODULE:
-          return $this->module();
+          return $this->module()
+          . $this->stmt();
         case TerminalSymbol::T_BLUEPRINT:
-          return $this->blueprint();
+          return $this->blueprint()
+          . $this->stmt();
+        case TerminalSymbol::T_ABSTRACT:
+          return $this->abstractBlueprint()
+          . $this->stmt();
+        case TerminalSymbol::T_FINAL:
+          return $this->finalBlueprint()
+          . $this->stmt();
+        case TerminalSymbol::T_WITH:
+          return $this->withStmt()
+          . $this->stmt();
         default:
           return "";
           echo "Error. Unexpected {$this->lookahead->value}\n";
-          var_dump($this->lookahead);
           exit;
       }
     }
@@ -56,7 +67,26 @@
     {
       switch ($this->lookahead->name) {
         case TerminalSymbol::T_SHARED:
-          return $this->sharedDecl() . $this->blueprintStmt();
+          return $this->sharedDecl()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_PROTECTED:
+          return $this->protectedDecl()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_MY:
+          return $this->myDecl()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_METHOD:
+          return $this->method()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_STATIC:
+          return $this->staticMethod()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_FINAL:
+          return $this->finalMethod()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_CONST:
+          return $this->constStmt()
+          . $this->blueprintStmt();
         default:
           return "";
       }
@@ -69,7 +99,7 @@
       return $comment;
     }
 
-    private function blueprint()
+    private function blueprint($type = [])
     {
       $buffer = [];
       $this->match(TerminalSymbol::T_BLUEPRINT);
@@ -82,8 +112,20 @@
       $buffer["stmt"] = $this->blueprintStmt();
       CodeGen::$scope--;
       $this->match(TerminalSymbol::T_END);
-      return CodeGen::blueprint($buffer["name"], $buffer["inherit"]
+      return CodeGen::blueprint($type, $buffer["name"], $buffer["inherit"]
         , $buffer["contract"], $buffer["stmt"]);
+    }
+
+    private function abstractBlueprint()
+    {
+      $this->match(TerminalSymbol::T_ABSTRACT);
+      return $this->blueprint(["abstract"]);
+    }
+
+    private function finalBlueprint()
+    {
+      $this->match(TerminalSymbol::T_FINAL);
+      return $this->blueprint(["final"]);
     }
 
     private function blueprintDefinitions()
@@ -144,7 +186,110 @@
     {
       $this->match(TerminalSymbol::T_SHARED);
       $property = $this->lookahead->value;
+      if ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER) {
+        $this->match(TerminalSymbol::T_IDENTIFIER);
+        return CodeGen::sharedDecl($property);
+      }
+      
+      if ($this->lookahead->name == TerminalSymbol::T_STATIC) {
+        $this->match(TerminalSymbol::T_STATIC);
+        return $this->method(["public"]);
+      }
+
+      if ($this->lookahead->name == TerminalSymbol::T_ABSTRACT) {
+        $this->match(TerminalSymbol::T_ABSTRACT);
+        return $this->method(["abstract"]);
+      }
+      
+    }
+
+    private function protectedDecl()
+    {
+      $this->match(TerminalSymbol::T_PROTECTED);
+      $property = $this->lookahead->value;
+      if ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER) {
+        $this->match(TerminalSymbol::T_IDENTIFIER);
+        return CodeGen::protectedDecl($property);
+      }
+
+      return $this->method(["protected"]);
+    }
+
+    private function myDecl()
+    {
+      $this->match(TerminalSymbol::T_MY);
+      $property = $this->lookahead->value;
+      if ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER) {
+        $this->match(TerminalSymbol::T_IDENTIFIER);
+        return CodeGen::myDecl($property);
+      }
+
+      return $this->method(["private"]);
+    }
+
+    private function staticMethod()
+    {
+      $this->match(TerminalSymbol::T_STATIC);
+      return $this->method(["static"]);
+    }
+
+    private function finalMethod()
+    {
+      $this->match(TerminalSymbol::T_FINAL);
+      var_dump($this->lookahead);
+      switch ($this->lookahead->name) {
+        case TerminalSymbol::T_SHARED:
+          $this->match(TerminalSymbol::T_SHARED);
+          return $this->method(["final", "public"]);
+        case TerminalSymbol::T_PROTECTED:
+          $this->match(TerminalSymbol::T_PROTECTED);
+          return $this->method(["final", "protected"]);
+        case TerminalSymbol::T_MY:
+          return $this->method(["final", "private"]);
+      }
+    }
+
+    private function method($type = [])
+    {
+      $buffer = [];
+      $this->match(TerminalSymbol::T_METHOD);
+      $buffer["name"] = $this->lookahead->value;
       $this->match(TerminalSymbol::T_IDENTIFIER);
-      return CodeGen::sharedDecl($property);
+      $buffer["args"] = ($this->lookahead->name == TerminalSymbol::T_LPAREN) ?
+        $this->methodArguments()
+      : [] ;
+      $this->match(TerminalSymbol::T_DOUBLE_COLON);
+      $this->match(TerminalSymbol::T_END);
+      return CodeGen::method($type, $buffer["name"], $buffer["args"]);
+    }
+
+    private function methodArguments()
+    {
+      $args = [];
+      $this->match(TerminalSymbol::T_LPAREN);
+      while ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER) {
+        $args[] = $this->lookahead->value;
+        $this->match(TerminalSymbol::T_IDENTIFIER);
+        if ($this->lookahead->name == TerminalSymbol::T_SEMICOLON) {
+          $this->match(TerminalSymbol::T_SEMICOLON);
+        }
+      }
+      $this->match(TerminalSymbol::T_RPAREN);
+      return $args;
+    }
+
+    private function withStmt()
+    {
+      $this->match(TerminalSymbol::T_WITH);
+      $name = $this->moduleName($this->lookahead->value);
+      return CodeGen::withStmt($name);
+    }
+
+    private function constStmt()
+    {
+      $this->match(TerminalSymbol::T_CONST);
+      $name = $this->lookahead->value;
+      $this->match(TerminalSymbol::T_IDENTIFIER);
+      return CodeGen::constStmt($name);
     }
   }

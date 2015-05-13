@@ -20,11 +20,10 @@
 % WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 module RawrLang.Lexer:
-  blueprint Token:
-    inherit Object
-    with contract IToken
+  with .Exception
+  with .ReflectionClass
 
-    shared name
-    shared value
+  blueprint TerminalSymbol:
+    const T_ABSTRACT
   end
 end
