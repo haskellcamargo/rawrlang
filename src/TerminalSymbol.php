@@ -34,6 +34,8 @@
     const T_ABSTRACT      = "T_ABSTRACT"      ;
     const T_AND           = "T_AND"           ;
     const T_AND_EQUAL     = "T_AND_EQUAL"     ; # Operator: &=
+    const T_APPEND        = "T_APPEND"        ; # Operator: <<<
+    const T_ARRAY_ACCESS  = "T_ARRAY_ACCESS"  ; # Operator !!
     const T_AS            = "T_AS"            ;
     const T_ASSIGN        = "T_ASSIGN"        ; # Operator: =
     const T_BAD_CHARACTER = "T_BAD_CHARACTER" ;
@@ -43,11 +45,13 @@
     const T_BITWISE_OR    = "T_BITWISE_OR"    ; # Operator .|.
     const T_BITWISE_XOR   = "T_BITWISE_XOR"   ; # Operator .^.
     const T_BLUEPRINT     = "T_BLUEPRINT"     ;
-    const T_CALL          = "T_CALL"          ;
+    const T_CALL          = "T_CALL"          ; # Operator !
     const T_CAST          = "T_CAST"          ; # Operator: *
+    const T_CHAIN         = "T_CHAIN"         ; # Operator >>
     const T_CLONE         = "T_CLONE"         ;
     const T_COMMA         = "T_COMMA"         ; # Operator: ,
     const T_COMMENT       = "T_COMMENT"       ;
+    const T_COMPOSE       = "T_COMPOSE"       ; # Operator >.<
     const T_CONCAT        = "T_CONCAT"        ; # Operator ++
     const T_CONCAT_ARRAY  = "T_CONCAT_ARRAY"  ; # Operator +++
     const T_CONCAT_EQ     = "T_CONCAT_EQ"     ; # Operator: ++=
@@ -56,7 +60,9 @@
     const T_CURRY         = "T_CURRY"         ; # Operator :>
     const T_DECLARE       = "T_DECLARE"       ;
     const T_DEFINE        = "T_DEFINE"        ;
+    const T_DIFFERENT     = "T_DIFFERENT"     ; # Operator <>
     const T_DIV_EQUAL     = "T_DIV_EQUAL"     ; # Operator: /=
+    const T_DIVISION      = "T_DIVI"          ; # Operator: /
     const T_DO            = "T_DO"            ;
     const T_DOT           = "T_DOT"           ;
     const T_DOUBLE_COLON  = "T_DOUBLE_COLON"  ; # Operator: :
@@ -65,6 +71,8 @@
     const T_ELSE          = "T_ELSE"          ;
     const T_END           = "T_END"           ;
     const T_EXIT          = "T_EXIT"          ;
+    const T_EXP_EQ        = "T_EXP_EQ"        ; # Operator **=
+    const T_EXP           = "T_EXP"           ; # Operator **
     const T_EXPOSING      = "T_EXPOSING"      ;
     const T_FALSE         = "T_FALSE"         ;
     const T_FINAL         = "T_FINAL"         ;
@@ -73,21 +81,32 @@
     const T_FROM          = "T_FROM"          ;
     const T_FUZZY_EQUAL   = "T_FUZZY_EQUAL"   ; # Operator: ~=
     const T_GOTO          = "T_GOTO"          ;
+    const T_GREATER       = "T_GREATER"       ; # Operator: >
+    const T_GREATER_OR_EQ = "T_GREATER_OR_EQ" ; # Operator: >=
     const T_IDENTIFIER    = "T_IDENTIFIER"    ;
     const T_IF            = "T_IF"            ;
     const T_IS            = "T_IS"            ;
+    const T_ISSET         = "T_ISSET"         ; # Operator ?
     const T_IMPORT        = "T_IMPORT"        ;
     const T_INCLUDE       = "T_INCLUDE"       ;
     const T_INCLUDE_ONCE  = "T_INCLUDE_ONCE"  ;
     const T_ITERATE       = "T_ITERATE"       ;
     const T_INHERIT       = "T_INHERIT"       ;
     const T_LAMBDA        = "T_LAMBDA"        ;
+    const T_LBRACKET      = "T_LBRACKET"      ;
+    const T_LCHAIN        = "T_LCHAIN"        ; # Operator <<
     const T_LEFT_SHIFT    = "T_LEFT_SHIFT"    ; # Operator .<<.
+    const T_LESSER        = "T_LESSER"        ; # Operator <
+    const T_LESSER_OR_EQ  = "T_LESSER_OR_EQ"  ; # Operator <=
     const T_LET           = "T_LET"           ;
     const T_LPAREN        = "T_LPAREN"        ;
     const T_LOOP          = "T_LOOP"          ;
+    const T_LSTRINGLIST   = "T_LSTRINGLIST"   ; # Operator <[
+    const T_MAP           = "T_MAP"           ; # Operator <$>
+    const T_MAXIMUM       = "T_MAXIMUM"       ; # Operator >?
     const T_MESSAGE       = "T_MESSAGE"       ;
     const T_METHOD        = "T_METHOD"        ;
+    const T_MINIMUM       = "T_MINIMUM"       ; # Operator <?
     const T_MINUS         = "T_MINUS"         ; # Operator -
     const T_MINUS_EQ      = "T_MINUS_EQ"      ; # Operator -=
     const T_MOD           = "T_MOD"           ;
@@ -96,14 +115,19 @@
     const T_NEWLINE       = "T_NEWLINE"       ;
     const T_NOT           = "T_NOT"           ;
     const T_NULL          = "T_NULL"          ;
+    const T_NULLCOALESCE  = "T_NULLCOALESCE"  ; # Operator ??
     const T_NUMBER        = "T_NUMBER"        ;
     const T_OR            = "T_OR"            ;
     const T_OTHERWISE     = "T_OTHERWISE"     ;
     const T_PARENT        = "T_PARENT"        ;
+    const T_PIPE          = "T_PIPE"          ; # Operator |
     const T_PLUS          = "T_PLUS"          ; # Operator +
+    const T_PREPEND       = "T_PREPEND"       ; # Operator <<<<
     const T_PLUS_EQ       = "T_PLUS_EQ"       ; # Operator +=
     const T_PROTECTED     = "T_PROTECTED"     ;
     const T_RAISE         = "T_RAISE"         ;
+    const T_RBRACKET      = "T_RBRACKET"      ;
+    const T_RSTRINGLIST   = "T_RSTRINGLIST"   ; # Operator ]>
     const T_RIGHT_SHIFT   = "T_RIGHT_SHIFT"   ; # Operator .>>.
     const T_RPAREN        = "T_RPAREN"        ;
     const T_RECORD        = "T_RECORD"        ;
@@ -111,15 +135,19 @@
     const T_REQUIRE_ONCE  = "T_REQUIRE_ONCE"  ;
     const T_RESCUE        = "T_RESCUE"        ;
     const T_RETURN        = "T_RETURN"        ;
+    const T_SEMICOLON     = "T_SEMICOLON"     ;
     const T_SHARED        = "T_SHARED"        ;
     const T_STATIC        = "T_STATIC"        ;
     const T_STATIC_ACCESS = "T_STATIC_ACCESS" ; # Operator ::
     const T_STOP          = "T_STOP"          ;
+    const T_STRICT_DIFF   = "T_STRICT_DIFF"   ; # Operator <!>
     const T_STRICT_EQUAL  = "T_STRICT_EQUAL"  ; # Operator ==
     const T_STRING        = "T_STRING"        ;
     const T_THEN          = "T_THEN"          ;
     const T_THIS          = "T_THIS"          ; # Operator @
     const T_TILDE         = "T_TILDE"         ; # Operator ~
+    const T_TIMES         = "T_TIMES"         ; # Operator *
+    const T_TIMES_EQ      = "T_TIMES_EQ"      ; # Operator *=
     const T_TO            = "T_TO"            ;
     const T_TRUE          = "T_TRUE"          ;
     const T_TRY           = "T_TRY"           ;

@@ -56,6 +56,26 @@
             return $this->checkDoubleQuote();
           case ":":
             return $this->checkDoubleColon();
+          case "[":
+            return $this->checkLeftBracket();
+          case "]":
+            return $this->checkRightBracket();
+          case ";":
+            return $this->checkSemicolon();
+          case "|":
+            return $this->checkPipe();
+          case ">":
+            return $this->checkGreater();
+          case "<":
+            return $this->checkLesser();
+          case "!":
+            return $this->checkExclamation();
+          case "/":
+            return $this->checkSlash();
+          case "*":
+            return $this->checkAsterisk();
+          case "?":
+            return $this->checkInterrogation();
           case "\n":
           case "\r":
           case "\r\n":
@@ -64,6 +84,8 @@
             return $this->checkLineComment();
           case ".":
             return $this->checkDot();
+          case "^":
+            return $this->checkCircunflex();
           default:
             if (Verifier::isAlpha($this->char) || Verifier::isUnderscore($this->char)) {
               return $this->checkWord();
@@ -330,5 +352,176 @@
 
       $this->consume();
       return new Token(TerminalSymbol::T_DOUBLE_COLON);
+    }
+
+    private function checkCircunflex()
+    {
+      if ($this->maybe("^^")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_CLONE);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_BAD_CHARACTER, "^");
+    }
+
+    private function checkLeftBracket()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_LBRACKET); 
+    }
+
+    private function checkRightBracket()
+    {
+      if ($this->maybe("]>")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_RSTRINGLIST);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_RBRACKET);
+    }
+
+    private function checkSemicolon()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_SEMICOLON);
+    }
+
+    private function checkPipe()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_PIPE);
+    }
+
+    private function checkGreater()
+    {
+      if ($this->maybe(">=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_GREATER_OR_EQ);
+      }
+
+      if ($this->maybe(">>")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_CHAIN);
+      }
+
+      if ($this->maybe(">?")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_MAXIMUM);
+      }
+
+      if ($this->maybe(">.<")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_COMPOSE);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_GREATER);
+    }
+
+    private function checkLesser()
+    {
+      if ($this->maybe("<=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_LESSER_OR_EQ);
+      }
+
+      if ($this->maybe("<>")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_DIFFERENT);
+      }
+
+      if ($this->maybe("<<<<")) {
+        $this->consume(4);
+        return new Token(TerminalSymbol::T_PREPEND);
+      }
+
+      if ($this->maybe("<<<")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_APPEND);
+      }
+
+      if ($this->maybe("<<")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_LCHAIN);
+      }
+
+      if ($this->maybe("<[")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_LSTRINGLIST);
+      }
+
+      if ($this->maybe("<?")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_MINIMUM);
+      }
+
+      if ($this->maybe("<!>")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_STRICT_DIFF);
+      }
+
+      if ($this->maybe("<$>")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_MAP);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_LESSER);
+    }
+
+    private function checkExclamation()
+    {
+      if ($this->maybe("!!")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_ARRAY_ACCESS);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_CALL);
+    }
+
+    private function checkSlash()
+    {
+      if ($this->maybe("/=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_DIV_EQ);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_DIVISION);
+    }
+
+    private function checkAsterisk()
+    {
+      if ($this->maybe("*=")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_TIMES_EQ);
+      }
+
+      if ($this->maybe("**=")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_EXP_EQ);
+      }
+
+      if ($this->maybe("**")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_EXP);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_TIMES);
+    }
+
+    private function checkInterrogation()
+    {
+      if ($this->maybe("??")) {
+        $this->consume(2);
+        return new Token(TerminalSymbol::T_NULLCOALESCE);
+      }
+
+      $this->consume();
+      return new Token(TerminalSymbol::T_ISSET);
     }
   }
