@@ -40,6 +40,7 @@
     const T_ASSIGN        = "T_ASSIGN"        ; # Operator: =
     const T_BAD_CHARACTER = "T_BAD_CHARACTER" ;
     const T_BEGIN         = "T_BEGIN"         ;
+    const T_BIND          = "T_BIND"          ; # Operator >>=
     const T_BITWISE_AND   = "T_BITWISE_AND"   ; # Operator .&.
     const T_BITWISE_NOT   = "T_BITWISE_NOT"   ; # Operator .~.
     const T_BITWISE_OR    = "T_BITWISE_OR"    ; # Operator .|.

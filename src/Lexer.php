@@ -401,6 +401,11 @@
         return new Token(TerminalSymbol::T_GREATER_OR_EQ);
       }
 
+      if ($this->maybe(">>=")) {
+        $this->consume(3);
+        return new Token(TerminalSymbol::T_BIND);
+      }
+
       if ($this->maybe(">>")) {
         $this->consume(2);
         return new Token(TerminalSymbol::T_CHAIN);
