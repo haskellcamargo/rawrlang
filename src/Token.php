@@ -32,6 +32,16 @@
       $this->value = $value;
     }
 
+    public function __toString()
+    {
+      if ($this->value !== 0) {
+        $token = TerminalSymbol::getTokenName($this->name);
+        return "['{$this->value}', {$token}]\n";
+      } else {
+        return "[{$this->name}]\n";
+      }
+    }
+
     public function putStrLn()
     {
       if ($this->value !== 0) {

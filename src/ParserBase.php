@@ -19,23 +19,33 @@
   # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
   # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  namespace RawrLang\Lexer;
-
-  require_once "TerminalSymbol.php";
-  require_once "Token.php";
-  require_once "LexerBase.php";
-  require_once "Lexer.php";
-  require_once "Verifier.php";
-
-  function testLexer()
+  namespace RawrLang\Parser;
+  use \Exception;
+  
+  abstract class ParserBase
   {
-    $source = file_get_contents($argv[1]);
+    public $input;
+    public $lookahead;
 
-    $lexer = new Lexer($source);
-    $token = $lexer->nextToken();
+    public function __construct(\RawrLang\Lexer\Lexer $input)
+    {
+      $this->input = $input;
+      $this->consume();
+    }
 
-    while ($token->name != "T_EOF") {
-      $token->putStrLn();
-      $token = $lexer->nextToken();
+    public function match($with)
+    {
+      if ($this->lookahead->name == $with) {
+        $this->consume();
+      } else {
+        throw new Exception("Expecting token " . $with . ". Found " .
+          $this->lookahead . " {$this->lookahead->value}");
+        exit;
+      }
+    }
+
+    public function consume()
+    {
+      $this->lookahead = $this->input->nextToken();
     }
   }

@@ -79,7 +79,9 @@
           case "\n":
           case "\r":
           case "\r\n":
-            return $this->checkNewLine();
+            $this->consume();
+            continue;
+            # return $this->checkNewLine();
           case "%":
             return $this->checkLineComment();
           case ".":
@@ -333,7 +335,6 @@
 
         return new Token(TerminalSymbol::T_CALL, $buffer);
       }
-
 
       return new Token(TerminalSymbol::T_TILDE);
     }

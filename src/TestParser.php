@@ -19,23 +19,18 @@
   # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
   # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  namespace RawrLang\Lexer;
+  namespace RawrLang\Parser;
 
-  require_once "TerminalSymbol.php";
-  require_once "Token.php";
-  require_once "LexerBase.php";
-  require_once "Lexer.php";
-  require_once "Verifier.php";
+  require_once "TestLexer.php";
+  require_once "ParserBase.php";
+  require_once "Parser.php";
+  require_once "CodeGen.php";
 
-  function testLexer()
+  function testParser($file)
   {
-    $source = file_get_contents($argv[1]);
-
-    $lexer = new Lexer($source);
-    $token = $lexer->nextToken();
-
-    while ($token->name != "T_EOF") {
-      $token->putStrLn();
-      $token = $lexer->nextToken();
-    }
+    $lexer = new \RawrLang\Lexer\Lexer(file_get_contents($file));
+    $parser = new Parser($lexer);
+    $parser->init();
   }
+
+  testParser($argv[1]);
