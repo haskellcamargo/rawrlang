@@ -57,13 +57,13 @@
 
     public static function contract($value, $extends, $contractStmt)
     {
-      $template  = self::prettify() . "interface $value";
+      $template  = self::prettify() . "interface $value ";
       if (sizeof($extends) > 0) {
-        $implementationList = [];
+        $extendList = [];
         foreach ($extends as $toExtend) {
-          $implementationList[] = self::translateName($toExtend);
+          $extendList[] = self::translateName($toExtend);
         }
-        $template .= "extends " . implode(", ", $implements) . " ";
+        $template .= "extends " . implode(", ", $extendList) . " ";
       }
       $template .= "{\n";
       $template .= $contractStmt;

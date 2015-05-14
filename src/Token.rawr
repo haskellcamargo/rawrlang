@@ -1,14 +1,18 @@
-module RawrLang.Lexer:
-  with .Type.String
-  with .Type.Integer
+module Enterprise.HumanResources:
 
-  contract IHuman:
-    should walk (*n :: Integer ; *until :: .Ambient.Capy)
+  contract IEmployer:
+    should work (fromTime :: string ; toTime :: string)
   end
 
-  blueprint Human:
-    with contract IHuman
-    my steps
-    shared static method walk (*n :: Integer ; *until :: .Ambient.Capy)
+  blueprint Employer:
+    with contract IEmployer
+
+    magic construct (name :: string):
+
+    end
+
+    shared method work (fromTime :: string ; toTime :: string):
+
+    end
   end
 end

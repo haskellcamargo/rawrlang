@@ -103,6 +103,7 @@
     const T_LPAREN        = "T_LPAREN"        ;
     const T_LOOP          = "T_LOOP"          ;
     const T_LSTRINGLIST   = "T_LSTRINGLIST"   ; # Operator <[
+    const T_MAGIC         = "T_MAGIC"         ;
     const T_MAP           = "T_MAP"           ; # Operator <$>
     const T_MAXIMUM       = "T_MAXIMUM"       ; # Operator >?
     const T_MESSAGE       = "T_MESSAGE"       ;
@@ -195,6 +196,7 @@
       "let"          => self::T_LET,
       "like"         => self::T_FUZZY_EQUAL,
       "loop"         => self::T_LOOP,
+      "magic"        => self::T_MAGIC,
       "method"       => self::T_METHOD,
       "mod"          => self::T_MOD,
       "module"       => self::T_MODULE,

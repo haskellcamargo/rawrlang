@@ -72,6 +72,11 @@
         case TerminalSymbol::T_SHOULD:
           return $this->should()
           . $this->contractStmt();
+        case TerminalSymbol::T_CONST:
+          return $this->constStmt()
+          . $this->contractStmt();
+        default:
+          return "";
       }
     }
 
@@ -101,6 +106,9 @@
           . $this->blueprintStmt();
         case TerminalSymbol::T_COMMENT:
           return $this->comment()
+          . $this->blueprintStmt();
+        case TerminalSymbol::T_MAGIC:
+          return $this->magic()
           . $this->blueprintStmt();
         default:
           return "";
@@ -372,5 +380,28 @@
         $this->methodArguments()
       : [] ;
       return CodeGen::inlineMethod(["public"], $buffer["name"], $buffer["args"]);
+    }
+
+    private function magic()
+    {
+      $buffer = [];
+      $this->match(TerminalSymbol::T_MAGIC);
+      $buffer["name"] = "__" . $this->lookahead->value;
+      $this->match(TerminalSymbol::T_IDENTIFIER);
+      $buffer["args"] = ($this->lookahead->name == TerminalSymbol::T_LPAREN) ?
+        $this->methodArguments()
+      : [] ;
+      if ($this->lookahead->name == TerminalSymbol::T_DOUBLE_COLON) {
+        $this->match(TerminalSymbol::T_DOUBLE_COLON);
+        CodeGen::$scope++;
+        $buffer["stmt"] = $this->stmt();
+        CodeGen::$scope--;
+        $this->match(TerminalSymbol::T_END);
+        return CodeGen::method(["public"], $buffer["name"], $buffer["args"]
+          , $buffer["stmt"]);
+      } else {
+        $out = CodeGen::inlineMethod(["public", "abstract"], $buffer["name"], $buffer["args"]);
+        return $out;
+      }
     }
   }
