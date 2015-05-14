@@ -37,7 +37,7 @@
 
     public static function comment($value)
     {
-      return "#{$value}\n";
+      return self::prettify() . "#{$value}\n";
     }
 
     public static function translateName($name)
@@ -55,7 +55,30 @@
       return $template;
     }
 
-    public static function blueprint($type, $value, $extends, $implements, $stmt)
+    public static function contract($value, $extends, $contractStmt)
+    {
+      $template  = self::prettify() . "interface $value";
+      if (sizeof($extends) > 0) {
+        $implementationList = [];
+        foreach ($extends as $toExtend) {
+          $implementationList[] = self::translateName($toExtend);
+        }
+        $template .= "extends " . implode(", ", $implements) . " ";
+      }
+      $template .= "{\n";
+      $template .= $contractStmt;
+      $template .= self::prettify() . "}\n";
+
+      return $template;
+    }
+
+    public static function blueprint(
+        $type
+      , $value
+      , $extends
+      , $implements
+      , $blueprintStmt
+    )
     {
       $template  = self::prettify();
       $template .= implode(" ", $type) ;
@@ -77,7 +100,7 @@
       }
 
       $template .= "{\n";
-      $template .= $stmt;
+      $template .= $blueprintStmt;
       $template .= self::prettify();
       $template .= "}\n";
 
@@ -102,18 +125,43 @@
       return $template;
     }
 
-    public static function method($type, $name, $args)
+    public static function method($type, $name, $args, $stmt)
     {
+      $argumentList = [];
+      foreach ($args as $argName => $argType) {
+        $argumentList[] = is_null($argType) ? ("$" . $argName)
+        /* otherwise */                  : (self::translateName($argType) . " $"
+                                             . $argName);
+      }
       $template  = self::prettify();
-      $template .= implode(" ", $type) ;
+      $template .= implode(" ", $type);
       if (sizeof($type) > 0) {
         $template .= " ";
       }
       $template .= "function $name(";
-      $template .= implode(", ", $args);
+      $template .= implode(", ", $argumentList);
       $template .= ")\n" . self::prettify() . "{\n";
-
+      $template .= $stmt;
       $template .= self::prettify() . "}\n";
+      return $template;
+    }
+
+    public static function inlineMethod($type, $name, $args)
+    {
+      $argumentList = [];
+      foreach ($args as $argName => $argType) {
+        $argumentList[] = is_null($argType) ? ("$" . $argName)
+        /* otherwise */                  : (self::translateName($argType) . " $"
+                                             . $argName);
+      }
+      $template  = self::prettify();
+      $template .= implode(" ", $type);
+      if (sizeof($type) > 0) {
+        $template .= " ";
+      }
+      $template .= "function $name(";
+      $template .= implode(", ", $argumentList);
+      $template .= ");\n";
       return $template;
     }
 

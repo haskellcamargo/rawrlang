@@ -137,7 +137,9 @@
     const T_RESCUE        = "T_RESCUE"        ;
     const T_RETURN        = "T_RETURN"        ;
     const T_SEMICOLON     = "T_SEMICOLON"     ;
+    const T_SINGLE_QUOTE  = "T_SINGLE_QUOTE"  ; # Operator '
     const T_SHARED        = "T_SHARED"        ;
+    const T_SHOULD        = "T_SHOULD"        ;
     const T_STATIC        = "T_STATIC"        ;
     const T_STATIC_ACCESS = "T_STATIC_ACCESS" ; # Operator ::
     const T_STOP          = "T_STOP"          ;
@@ -209,6 +211,7 @@
       "rescue"       => self::T_RESCUE,
       "return"       => self::T_RETURN,
       "shared"       => self::T_SHARED,
+      "should"       => self::T_SHOULD,
       "static"       => self::T_STATIC,
       "stop"         => self::T_STOP,
       "then"         => self::T_THEN,

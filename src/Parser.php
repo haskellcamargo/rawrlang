@@ -47,6 +47,9 @@
         case TerminalSymbol::T_BLUEPRINT:
           return $this->blueprint()
           . $this->stmt();
+        case TerminalSymbol::T_CONTRACT:
+          return $this->contract()
+          . $this->stmt();
         case TerminalSymbol::T_ABSTRACT:
           return $this->abstractBlueprint()
           . $this->stmt();
@@ -60,6 +63,15 @@
           return "";
           echo "Error. Unexpected {$this->lookahead->value}\n";
           exit;
+      }
+    }
+
+    private function contractStmt()
+    {
+      switch ($this->lookahead->name) {
+        case TerminalSymbol::T_SHOULD:
+          return $this->should()
+          . $this->contractStmt();
       }
     }
 
@@ -87,6 +99,9 @@
         case TerminalSymbol::T_CONST:
           return $this->constStmt()
           . $this->blueprintStmt();
+        case TerminalSymbol::T_COMMENT:
+          return $this->comment()
+          . $this->blueprintStmt();
         default:
           return "";
       }
@@ -97,6 +112,32 @@
       $comment = CodeGen::comment($this->lookahead->value);
       $this->match(TerminalSymbol::T_COMMENT);
       return $comment;
+    }
+
+    private function contract()
+    {
+      $buffer = [];
+      $this->match(TerminalSymbol::T_CONTRACT);
+      $buffer["name"] = $this->lookahead->value;
+      $this->match(TerminalSymbol::T_IDENTIFIER);
+      $this->match(TerminalSymbol::T_DOUBLE_COLON);
+      $buffer["inherit"] = $this->contractDefinitions();
+      CodeGen::$scope++;
+      $buffer["stmt"] = $this->contractStmt();
+      CodeGen::$scope--;
+      $this->match(TerminalSymbol::T_END);
+      return CodeGen::contract($buffer["name"], $buffer["inherit"]
+        , $buffer["stmt"]);
+    }
+
+    private function contractDefinitions()
+    {
+      $inherit = [];
+      while ($this->lookahead->name == TerminalSymbol::T_INHERIT) {
+        $this->match(TerminalSymbol::T_INHERIT);
+        $inherit[] = $this->moduleName();
+      }
+      return $inherit;
     }
 
     private function blueprint($type = [])
@@ -135,15 +176,13 @@
 
       if ($this->lookahead->name == TerminalSymbol::T_INHERIT) {
         $this->match(TerminalSymbol::T_INHERIT);
-        $inherit = $this->lookahead->value;
-        $this->match(TerminalSymbol::T_IDENTIFIER);
+        $inherit = $this->moduleName();
       }
 
       while ($this->lookahead->name == TerminalSymbol::T_WITH) {
         $this->match(TerminalSymbol::T_WITH);
         $this->match(TerminalSymbol::T_CONTRACT);
-        $contract[] = $this->lookahead->value;
-        $this->match(TerminalSymbol::T_IDENTIFIER);
+        $contract[] = $this->moduleName();
       }
 
       return [$inherit, $contract];
@@ -193,12 +232,16 @@
       
       if ($this->lookahead->name == TerminalSymbol::T_STATIC) {
         $this->match(TerminalSymbol::T_STATIC);
-        return $this->method(["public"]);
+        return $this->method(["public", "static"]);
       }
 
       if ($this->lookahead->name == TerminalSymbol::T_ABSTRACT) {
         $this->match(TerminalSymbol::T_ABSTRACT);
-        return $this->method(["abstract"]);
+        return $this->method(["public", "abstract"]);
+      }
+
+      if ($this->lookahead->name == TerminalSymbol::T_METHOD) {
+        return $this->method(["public"]);
       }
       
     }
@@ -258,18 +301,45 @@
       $buffer["args"] = ($this->lookahead->name == TerminalSymbol::T_LPAREN) ?
         $this->methodArguments()
       : [] ;
-      $this->match(TerminalSymbol::T_DOUBLE_COLON);
-      $this->match(TerminalSymbol::T_END);
-      return CodeGen::method($type, $buffer["name"], $buffer["args"]);
+      if ($this->lookahead->name == TerminalSymbol::T_DOUBLE_COLON) {
+        $this->match(TerminalSymbol::T_DOUBLE_COLON);
+        CodeGen::$scope++;
+        $buffer["stmt"] = $this->stmt();
+        CodeGen::$scope--;
+        $this->match(TerminalSymbol::T_END);
+        return CodeGen::method($type, $buffer["name"], $buffer["args"]
+          , $buffer["stmt"]);
+      } else {
+        $out = CodeGen::inlineMethod($type, $buffer["name"], $buffer["args"]);
+        return $out;
+      }
     }
 
     private function methodArguments()
     {
       $args = [];
       $this->match(TerminalSymbol::T_LPAREN);
-      while ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER) {
-        $args[] = $this->lookahead->value;
+
+      while ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER
+          || $this->lookahead->name == TerminalSymbol::T_TIMES) {
+
+        $byRef = false;
+        if ($this->lookahead->name == TerminalSymbol::T_TIMES) {
+          $this->match(TerminalSymbol::T_TIMES);
+          $byRef = true;
+        }
+
+        $name = $this->lookahead->value;
+        $args[$byRef ? "&" . $name : $name] = null;
+
         $this->match(TerminalSymbol::T_IDENTIFIER);
+
+        if ($this->lookahead->name == TerminalSymbol::T_STATIC_ACCESS) {
+          $this->match(TerminalSymbol::T_STATIC_ACCESS);
+          $type = $this->moduleName();
+          $args[$byRef ? "&" . $name : $name] = $type;
+        }
+
         if ($this->lookahead->name == TerminalSymbol::T_SEMICOLON) {
           $this->match(TerminalSymbol::T_SEMICOLON);
         }
@@ -291,5 +361,16 @@
       $name = $this->lookahead->value;
       $this->match(TerminalSymbol::T_IDENTIFIER);
       return CodeGen::constStmt($name);
+    }
+
+    private function should()
+    {
+      $this->match(TerminalSymbol::T_SHOULD);
+      $buffer["name"] = $this->lookahead->value;
+      $this->match(TerminalSymbol::T_IDENTIFIER);
+      $buffer["args"] = ($this->lookahead->name == TerminalSymbol::T_LPAREN) ?
+        $this->methodArguments()
+      : [] ;
+      return CodeGen::inlineMethod(["public"], $buffer["name"], $buffer["args"]);
     }
   }

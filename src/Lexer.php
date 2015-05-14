@@ -76,6 +76,8 @@
             return $this->checkAsterisk();
           case "?":
             return $this->checkInterrogation();
+          case "'":
+            return $this->checkSingleQuote();
           case "\n":
           case "\r":
           case "\r\n":
@@ -529,5 +531,11 @@
 
       $this->consume();
       return new Token(TerminalSymbol::T_ISSET);
+    }
+
+    private function checkSingleQuote()
+    {
+      $this->consume();
+      return new Token(TerminalSymbol::T_SINGLE_QUOTE);
     }
   }
