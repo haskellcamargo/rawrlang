@@ -1,18 +1,1 @@
-module Enterprise.HumanResources:
-
-  contract IEmployer:
-    should work (fromTime :: string ; toTime :: string)
-  end
-
-  blueprint Employer:
-    with contract IEmployer
-
-    magic construct (name :: string):
-
-    end
-
-    shared method work (fromTime :: string ; toTime :: string):
-
-    end
-  end
-end
+module Main:

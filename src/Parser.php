@@ -19,8 +19,14 @@
   # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
   # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+  # TODO:
+  # REMODELAR COMPLETAMENTE ESSA BOSTA!
+  
   namespace RawrLang\Parser;
   use \RawrLang\CodeGen\CodeGen;
+  use \RawrLang\Lexer\LexerBase;
   use \RawrLang\Lexer\TerminalSymbol;
 
   class Parser extends ParserBase
@@ -47,6 +53,9 @@
         case TerminalSymbol::T_BLUEPRINT:
           return $this->blueprint()
           . $this->stmt();
+        case TerminalSymbol::T_TRAIT:
+          return $this->_trait()
+          . $this->stmt();
         case TerminalSymbol::T_CONTRACT:
           return $this->contract()
           . $this->stmt();
@@ -59,9 +68,12 @@
         case TerminalSymbol::T_WITH:
           return $this->withStmt()
           . $this->stmt();
-        default:
+        case LexerBase::T_EOF:
+          $this->match(LexerBase::T_EOF);
           return "";
-          echo "Error. Unexpected {$this->lookahead->value}\n";
+        default:
+          var_dump($this->lookahead);
+          echo "Error. Unexpected {$this->lookahead->name}\n";
           exit;
       }
     }
@@ -148,6 +160,21 @@
       return $inherit;
     }
 
+    private function _trait()
+    {
+      $buffer = [];
+      $this->match(TerminalSymbol::T_TRAIT);
+      $buffer["name"] = $this->lookahead->value;
+      $this->match(TerminalSymbol::T_IDENTIFIER);
+      $this->match(TerminalSymbol::T_DOUBLE_COLON);
+      $buffer["with"] = $this->traitDefinitions();
+      CodeGen::$scope++;
+      $buffer["stmt"] = $this->blueprintStmt();
+      CodeGen::$scope--;
+      $this->match(TerminalSymbol::T_END);
+      return CodeGen::_trait($buffer["name"], $buffer["with"], $buffer["stmt"]);
+    }
+
     private function blueprint($type = [])
     {
       $buffer = [];
@@ -196,6 +223,16 @@
       return [$inherit, $contract];
     }
 
+    private function traitDefinitions()
+    {
+      $with = [];
+      while ($this->lookahead->name == TerminalSymbol::T_WITH) {
+        $this->match(TerminalSymbol::T_WITH);
+        $with[] = $this->moduleName();
+      }
+      return $with;
+    }
+
     private function module()
     {
       $buffer = [];
@@ -217,14 +254,14 @@
         $this->match(TerminalSymbol::T_DOT);
       }
 
-      while ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER) {
+      do {
         $name .= $this->lookahead->value;
         $this->match(TerminalSymbol::T_IDENTIFIER);
         if ($this->lookahead->name == TerminalSymbol::T_DOT) {
           $name .= "[NS_SEPARATOR]";
           $this->match(TerminalSymbol::T_DOT);
         }
-      }
+      } while ($this->lookahead->name == TerminalSymbol::T_IDENTIFIER);
 
       return $name;
     }

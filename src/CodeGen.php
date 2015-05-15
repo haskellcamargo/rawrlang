@@ -72,6 +72,18 @@
       return $template;
     }
 
+    public static function _trait($name, $using, $blueprintStmt)
+    {
+      $template = self::prettify() . "trait $name {\n";
+      foreach ($using as $trait) {
+        $template .= "use " . self::translateName($trait) . ";\n";
+      }
+      $template .= $blueprintStmt;
+      $template .= self::prettify() . "}\n";
+
+      return $template;
+    }
+
     public static function blueprint(
         $type
       , $value

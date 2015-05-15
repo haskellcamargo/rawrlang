@@ -153,6 +153,7 @@
     const T_TIMES         = "T_TIMES"         ; # Operator *
     const T_TIMES_EQ      = "T_TIMES_EQ"      ; # Operator *=
     const T_TO            = "T_TO"            ;
+    const T_TRAIT         = "T_TRAIT"         ;
     const T_TRUE          = "T_TRUE"          ;
     const T_TRY           = "T_TRY"           ;
     const T_TYPESIGN      = "T_TYPESIGN"      ;
@@ -218,6 +219,7 @@
       "stop"         => self::T_STOP,
       "then"         => self::T_THEN,
       "to"           => self::T_TO,
+      "trait"        => self::T_TRAIT,
       "True"         => self::T_TRUE,
       "try"          => self::T_TRY,
       "xor"          => self::T_XOR,
