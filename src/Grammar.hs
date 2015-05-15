@@ -69,4 +69,36 @@ exposed-var = identifier
 
 static-var = identifier, "=", static-scalar
 
-shape-stmt
+shape-stmt = variable-modifiers, shape-variable-declaration, { ";",
+               shape-variable-declaration }
+           | "const" shape-constant-declaration, { ";",
+               shape-constant-declaration }
+           | { modifier }, method, [ "*" ], identifier, parameter-list,
+               inner-stmt-list, "end" ;
+
+variable-modifiers = "var"
+                   | modifier, { modifier } ;
+
+modifier = "public"
+         | "private"
+         | "protected"
+         | "static"
+         | "abstract"
+         | "final" ;
+
+shape-variable-declaration = variable-modifiers, identifier, [ "=",
+  static-scalar ] ;
+
+shape-constant-declaration = identifier, "=", static-scalar ;
+
+expr-without-variable = "[", identifier, [ ";", identifier ], "]", "=", expr
+                      | identifier, "=", expr
+                      | identifier, "=", "*", identifier
+                      | identifier, "=", "*", "+", shape-name-reference, [
+                          ctor-arguments ]
+                      | "+", shape-name-reference, [ ctor-arguments ] ;
+                      | "^^", expr
+                      | "identifier", equal-operators, expr ;
+
+equal-operators = "+=" | "-=" | "*=" | "/=" | ".=" | "&=" | "|=" | "^=" |
+                | "<<=" | ">>=" ;
