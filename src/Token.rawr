@@ -1,1 +1,22 @@
-module Main:
+module Enterprise.HumanResources:
+
+  contract IEmployer:
+    should work (fromTime :: string ; toTime :: string)
+  end
+
+  trait Test:
+    shared abstract method walk share
+  end
+
+  blueprint Employer:
+    with contract IEmployer
+
+    magic construct (name :: string):
+
+    end
+
+    shared method work (fromTime :: string ; toTime :: string):
+
+    end
+  end
+end

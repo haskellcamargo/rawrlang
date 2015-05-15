@@ -27,9 +27,9 @@
   require_once "Lexer.php";
   require_once "Verifier.php";
 
-  function testLexer()
+  function testLexer($file)
   {
-    $source = file_get_contents($argv[1]);
+    $source = file_get_contents($file);
 
     $lexer = new Lexer($source);
     $token = $lexer->nextToken();
@@ -39,3 +39,5 @@
       $token = $lexer->nextToken();
     }
   }
+
+  testLexer($argv[1]);
