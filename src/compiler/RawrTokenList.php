@@ -4,6 +4,7 @@ namespace Compiler
 {
   class RawrTokenList
   {
+    const T_EOF                      = -1;
     // Some tokens are kept untouchable from PHP
     const T_ABSTRACT                 = T_ABSTRACT;
     const T_AND_EQUAL                = T_AND_EQUAL;
